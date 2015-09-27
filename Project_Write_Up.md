@@ -1,8 +1,10 @@
 # Data Project Documentation
 
 ### Introduction
-The Markdown file documents what was done for the "World Healthcare Data 1995 to 2013" App. It can be found [App Here](https://samyongchang.shinyapps.io/DataProductsProject).
+The Markdown file documents what was done for the [World Healthcare Data 1995 to 2013 App](https://samyongchang.shinyapps.io/DataProductsProject). It can be found in the hyperlink above.
 
+## Presentation Link
+The presenation link for app can also be found [Here](http://rpubs.com/samyongchang/dataproducts).
 
 ## Data Source
 
@@ -93,69 +95,12 @@ names(dgroup)[1] <- "Year"
 
 library(shiny)
 library(googleVis)
-```
-
-```
-## 
-## Welcome to googleVis version 0.5.10
-## 
-## Please read the Google API Terms of Use
-## before you start using the package:
-## https://developers.google.com/terms/
-## 
-## Note, the plot method of googleVis will by default use
-## the standard browser to display its output.
-## 
-## See the googleVis package vignettes for more details,
-## or visit http://github.com/mages/googleVis.
-## 
-## To suppress this message use:
-## suppressPackageStartupMessages(library(googleVis))
-```
-
-```r
 require(devtools)
-```
-
-```
-## Loading required package: devtools
-## WARNING: Rtools is required to build R packages, but no version of Rtools compatible with R 3.2.2 was found. (Only the following incompatible version(s) of Rtools were found:3.1)
-## 
-## Please download and install Rtools 3.3 from http://cran.r-project.org/bin/windows/Rtools/ and then run find_rtools().
-```
-
-```r
 library(psych)
 library(ggplot2)
-```
-
-```
-## 
-## Attaching package: 'ggplot2'
-## 
-## The following object is masked from 'package:psych':
-## 
-##     %+%
-```
-
-```r
 library(dplyr)
-```
 
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
 
-```r
 shinyServer(
 
   

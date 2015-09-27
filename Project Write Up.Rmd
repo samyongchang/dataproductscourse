@@ -6,8 +6,10 @@ output:
 ---
 
 ### Introduction
-The Markdown file documents what was done for the "World Healthcare Data 1995 to 2013" App. It can be found [App Here](https://samyongchang.shinyapps.io/DataProductsProject).
+The Markdown file documents what was done for the [World Healthcare Data 1995 to 2013 App](https://samyongchang.shinyapps.io/DataProductsProject). It can be found in the hyperlink above.
 
+## Presentation Link
+The presenation link for app can also be found [Here](http://rpubs.com/samyongchang/dataproducts).
 
 ## Data Source
 
@@ -87,7 +89,7 @@ shinyUI(fluidPage(
 ```
 
 ## Script for server.R
-```{r, results=FALSE}
+```{r, eval=FALSE}
 
 
 # Load data from the root directory

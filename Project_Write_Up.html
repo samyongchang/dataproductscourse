@@ -66,7 +66,11 @@ img {
 
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
-<p>The Markdown file documents what was done for the “World Healthcare Data 1995 to 2013” App. It can be found <a href="https://samyongchang.shinyapps.io/DataProductsProject">App Here</a>.</p>
+<p>The Markdown file documents what was done for the <a href="https://samyongchang.shinyapps.io/DataProductsProject">World Healthcare Data 1995 to 2013 App</a>. It can be found in the hyperlink above.</p>
+</div>
+<div id="presentation-link" class="section level2">
+<h2>Presentation Link</h2>
+<p>The presenation link for app can also be found <a href="http://rpubs.com/samyongchang/dataproducts">Here</a>.</p>
 </div>
 <div id="data-source" class="section level2">
 <h2>Data Source</h2>
@@ -148,47 +152,14 @@ dgroup &lt;- aggregate(chartdata[3:15], by = list(chartdata$Year), FUN=&quot;mea
 names(dgroup)[1] &lt;- &quot;Year&quot;
 
 library(shiny)
-library(googleVis)</code></pre>
-<pre><code>## 
-## Welcome to googleVis version 0.5.10
-## 
-## Please read the Google API Terms of Use
-## before you start using the package:
-## https://developers.google.com/terms/
-## 
-## Note, the plot method of googleVis will by default use
-## the standard browser to display its output.
-## 
-## See the googleVis package vignettes for more details,
-## or visit http://github.com/mages/googleVis.
-## 
-## To suppress this message use:
-## suppressPackageStartupMessages(library(googleVis))</code></pre>
-<pre class="r"><code>require(devtools)</code></pre>
-<pre><code>## Loading required package: devtools
-## WARNING: Rtools is required to build R packages, but no version of Rtools compatible with R 3.2.2 was found. (Only the following incompatible version(s) of Rtools were found:3.1)
-## 
-## Please download and install Rtools 3.3 from http://cran.r-project.org/bin/windows/Rtools/ and then run find_rtools().</code></pre>
-<pre class="r"><code>library(psych)
-library(ggplot2)</code></pre>
-<pre><code>## 
-## Attaching package: 'ggplot2'
-## 
-## The following object is masked from 'package:psych':
-## 
-##     %+%</code></pre>
-<pre class="r"><code>library(dplyr)</code></pre>
-<pre><code>## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>shinyServer(
+library(googleVis)
+require(devtools)
+library(psych)
+library(ggplot2)
+library(dplyr)
+
+
+shinyServer(
 
   
   function(input, output) {
