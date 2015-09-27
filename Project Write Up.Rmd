@@ -1,0 +1,216 @@
+---
+title: "Data Project Documentation"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+### Introduction
+The Markdown file documents what was done for the "World Healthcare Data 1995 to 2013" App. It can be found [App Here](https://samyongchang.shinyapps.io/DataProductsProject).
+
+
+## Data Source
+
+We will be using the [World Development Indicators](http://data.worldbank.org/topic/health) data base from the World Bank website. The data can be downloaded [here]("http://api.worldbank.org/v2/en/topic/8?downloadformat=csv"). The recode below 
+
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+# Downloading the data
+
+wburl <- "http://api.worldbank.org/v2/en/topic/8?downloadformat=csv"
+download.file(wburl, "data.zip")
+unzip("data.zip", list=TRUE)
+unzip("data.zip", files=c("Metadata_Indicator_8_Topic_en_csv_v2.csv", "8_Topic_en_csv_v2.csv", "Metadata_Country_8_Topic_en_csv_v2.csv", "[Content_Types].xml"))
+
+# Reading the data
+d <- read.csv("8_Topic_en_csv_v2.csv", skip=4)
+```
+
+
+# The Code for the App
+
+## Script for ui.R
+```{r, eval=FALSE}
+# This is for ui.R
+
+library(shiny)
+shinyUI(fluidPage(
+  
+  titlePanel("World Healthcare Data 1995 to 2013"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      h2("Analyse Country Statistics"),
+      selectInput('countryid', "Country", as.character(unique(chartdata$Country.Name))),
+      h6("This changes the Summary Statistics for 1995 to 2013 & Comparison with Overall Average tabs"),
+      selectInput('stat1', "Choose a Statistic", names(chartdata[,3:15])),
+      h6("Select to compare with the overall average in the Comparison with Overall Average tab"),
+      width=3
+    ),
+      
+    
+    mainPanel(
+      
+      tabsetPanel(
+        position = "above",
+        
+        tabPanel("Summary Statistics for 1995 to 2013", 
+                 verbatimTextOutput("selectedcountry"), 
+                 h3("Summary Statistics"),
+                 tableOutput("summarytable")), 
+
+        tabPanel("Comparison with Overall Average",
+                 h2("Selected Country & Statistics Vs. Overall"),
+                 h4("Plot tracks the selected statistic compared with all countries in the dataset.
+                    The correlation between the two are also show"),
+                 plotOutput("plot2")),          
+                
+        tabPanel("Motion Plot", 
+                 h2("Motion Plot"),
+                 h3("Please select the required data in the fields provided"),
+                 h4("(Note: Graphics may take a while to load)"),
+                 htmlOutput("plot1")),
+
+        tabPanel("Documentation Guide",
+                 h6("Summary statistics for 1995 to 2013 - Select a Country and it shows summary data for the country selected"),
+                 h6("Comparison with World Average - Select a Country and Statistics and it plots the selected country and the selected statistics compared to the overall"),
+                h6("Motion and Comparison Plots - Select the statistics, country that you are interested in to observe how they change over time.")
+                 )
+          
+      )
+    )
+  )
+)
+)
+
+
+```
+
+## Script for server.R
+```{r, results=FALSE}
+
+
+# Load data from the root directory
+chartdata <- readRDS("chartdata.rds")
+
+# Create an table with the average of all attributes
+dgroup <- aggregate(chartdata[3:15], by = list(chartdata$Year), FUN="mean")
+names(dgroup)[1] <- "Year"
+
+library(shiny)
+library(googleVis)
+require(devtools)
+library(psych)
+library(ggplot2)
+library(dplyr)
+
+
+shinyServer(
+
+  
+  function(input, output) {
+    
+  # Summary Tables   
+    output$selectedcountry <- renderText({paste("Selected Country:", input$countryid, sep=" ")})
+    output$summarytable <- renderTable({
+                          describe(chartdata[chartdata$Country.Name==paste(input$countryid,sep=""),])[c(-1,-2),c(3:5,8:10)]
+                         })
+  # Plot motion chart
+    output$plot1 <- renderGvis({
+      gvisMotionChart(chartdata,"Country.Name", "Year", 
+                           options= list(width=1000, height=500))})
+  
+  # Plot Line Chart that compares with 
+    
+    output$plot2 <- renderPlot({
+                      
+                      num <- match(input$stat1, names(dgroup))
+                      
+                      cdata <- reactive({chartdata[chartdata$Country.Name==input$countryid,]})
+                      charting <- cdata()
+                  
+                      numc <- match(input$stat1, names(charting))
+                      corrnum <- cor(charting[,numc], dgroup[,num])
+                      
+                      plot(x=charting$Year, y=charting[,numc], type="l", col="steel blue", lwd=4,
+                           xlab = "Year", ylab = as.character(input$stat1), ylim=c(min(chartdata[,numc]), max(chartdata[,numc])), xlim=c(1995,2013) 
+                           )
+                      
+                      par(new=T)
+                      plot(x=dgroup$Year, dgroup[,num] , type = "l", col="black", xlab="", ylab="", lwd=1, ylim=c(min(chartdata[,numc]), max(chartdata[,numc])), xlim=c(1995,2013))
+                      par(new=F)
+                      legend("topright", col=c("steel blue","black"), lty=1, lwd=1, bty="n",
+                             legend=c(input$countryid, "Overall"))
+                      text(1998, max(chartdata[,numc]), paste("Correlation with Overall=", round(corrnum,digits=2), cex=2))
+                      
+                      })
+      
+      
+  })                            
+
+```
+
+## Scripts for Data Processing
+
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
+
+# Identifying Indicators of Interest
+ind1 <- grepl("SH.XPD.OOPC.TO.ZS|
+              SH.XPD.OOPC.ZS|SH.XPD.PCAP|SH.XPD.PCAP.PP.KD|
+              SH.XPD.PUBL|SH.XPD.PUBL.GX.ZS|SH.XPD.PUBL.ZS|SH.XPD.TOTL.ZS|
+              SN.ITK.DEFC.ZS|SP.DYN.CBRT.IN|SP.DYN.CDRT.IN|SP.DYN.LE00.IN|
+              SP.POP.0014.TO.ZS|SP.POP.1564.TO.ZS|SP.POP.65UP.TO.ZS|
+              SP.POP.GROW|SP.POP.TOTL",d$Indicator.Code)
+
+# We Confine the data to the years 1995 to 2013 where there is Health Expenditure Data for most countries. 
+df <- d[ind1,c(-2, -5:-38, -58:-60)]
+
+# Remove Countries that have no data for Health Expenditure, Total (% of GDP)
+ind2 <- df[df$Indicator.Name=="Health expenditure, total (% of GDP)",]
+ind3 <- as.character(unique(ind2$Country.Name[complete.cases(ind2)]))
+df <- df[df$Country.Name %in% ind3,]
+
+# Remove Countries with no data for year 2013
+ind4 <- df[is.na(df$X2013),]
+df <- df[!df$Country.Name %in% as.character(unique(ind4$Country.Name)),]
+
+# Remove remaining incomplete cases
+ind5 <- df[!complete.cases(df),]
+df <- df[!df$Country.Name %in% as.character(unique(ind5$Country.Name)),]
+
+# Reshape into Time Series Format
+library(reshape2)
+library(plyr)
+df <- melt(df, id.vars = c("Country.Name", "Indicator.Name", "Indicator.Code"), measure.vars = 4:22)
+
+# Create a New variable for Years
+start <- 1994
+for (i in unique(df$variable)) {
+                          start <- start + 1
+                          df$Year[df$variable==paste(i,sep="")] <- start
+}
+
+
+# Create the final data file which consists only of 
+selected <- df[,c(1,2,5,6)]
+chartdata <- dcast(selected,Country.Name + Year ~ Indicator.Name)
+saveRDS(chartdata, file = "chartdata.rds")
+
+```
+
+```{r, echo=FALSE}
+chartdata <- readRDS("chartdata.rds")
+```
+
+## List of Countries and Indicators in the final Dataset
+```{r, results='asis', echo=TRUE}
+library(xtable)
+
+# Show Final List of Countries in Data
+print(xtable(data.frame(unique(chartdata$Country.Name))), floating=TRUE, comment=FALSE, type = "html", include.rownames = F)
+
+# Shw Final List of Indicators in Data
+print(xtable(data.frame(names(chartdata)[3:15])), floating=TRUE, comment=FALSE, type = "html", include.rownames = F)
+```
+
+
